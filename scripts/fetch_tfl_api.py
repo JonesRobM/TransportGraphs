@@ -30,9 +30,21 @@ API_BASE = 'https://api.tfl.gov.uk'
 # Line ID mappings (TfL API ID -> our code)
 LINE_MAPPINGS = {
     'elizabeth': 'ELZ',
-    'london-overground': 'OVG',
     'dlr': 'DLR',
     'tram': 'TRM',
+    # London Overground lines (rebranded 2024)
+    'liberty': 'LIB',
+    'lioness': 'LIO',
+    'mildmay': 'MIL',
+    'suffragette': 'SUF',
+    'weaver': 'WEA',
+    'windrush': 'WIN',
+}
+
+# Aliases for fetching multiple lines at once
+LINE_ALIASES = {
+    'overground': ['liberty', 'lioness', 'mildmay', 'suffragette', 'weaver', 'windrush'],
+    'all': ['elizabeth', 'dlr', 'tram', 'liberty', 'lioness', 'mildmay', 'suffragette', 'weaver', 'windrush'],
 }
 
 
@@ -313,9 +325,18 @@ def process_line(line_id):
 def main():
     # Determine which lines to process
     if len(sys.argv) > 1:
-        lines = [arg.lower() for arg in sys.argv[1:]]
+        args = [arg.lower() for arg in sys.argv[1:]]
     else:
-        lines = ['elizabeth']  # Default to Elizabeth line
+        args = ['elizabeth']  # Default to Elizabeth line
+
+    # Expand aliases
+    lines = []
+    for arg in args:
+        if arg in LINE_ALIASES:
+            lines.extend(LINE_ALIASES[arg])
+            print(f"Expanding '{arg}' to: {', '.join(LINE_ALIASES[arg])}")
+        else:
+            lines.append(arg)
 
     success_count = 0
     for line_id in lines:
